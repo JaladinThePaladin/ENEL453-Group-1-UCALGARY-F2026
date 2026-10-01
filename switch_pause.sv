@@ -28,12 +28,9 @@ module switch_pause(
     output logic [15:0] sent_vals       // What pause module sends to the 7 segment sequence
     );
     
-    always_ff begin
-    
-        if(~bottom_PB)
-            end
-        else
-        
-    end
+    always_ff @(posedge clk)
+        if      (reset) sent_vals <= 16'b0;
+        else if (bottom_PB) sent_vals <= paused_vals;
+
     
 endmodule
