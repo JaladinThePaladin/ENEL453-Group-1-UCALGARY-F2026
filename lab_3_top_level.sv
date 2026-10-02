@@ -19,13 +19,14 @@ module lab_3_top_level (
     // Instantiate components
 
     switch_logic SWITCHES (
+        .clk(clk),
         .switches_inputs( switches_inputs),
         .switches_outputs(switches_outputs)
     );
     
     switch_pause SWITCH_PAUSE (
         .clk(clk), .reset(reset),                   // clk and reset
-        .paused_vals( switches_inputs),             // Takes input directly from switches
+        .paused_vals( switches_outputs),             // Takes input directly from switches
         .bottom_PB(   bottom_PB),                   // PB that decides whether values are paused (enable signal?)
         .sent_vals(   switches_pause_intermediary)  // Output is frozen switches values or just passed through the module
     );
