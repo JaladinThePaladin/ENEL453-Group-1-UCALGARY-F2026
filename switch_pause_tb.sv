@@ -1,4 +1,4 @@
-// testbench for switch_pause
+// Testbench for switch_pause
 
 `timescale 1ns/1ps
 
@@ -51,12 +51,12 @@ module switch_pause_tb;
         // This means that storage_vals should remain 25
         switches_outputs = 16'd100;
 
-        # CLK_PERIOD * 2;
+        # (2*CLK_PERIOD);
 
         // Test 3: Press button to store the new Value
-        bottom_PB       = 1;
+        bottom_PB    = 1;
 
-        # CLK_PERIOD * 2;
+        # (2*CLK_PERIOD);
 
         bottom_PB       = 0;
 
@@ -64,7 +64,7 @@ module switch_pause_tb;
         // This will show that the stored value should remain 100
         switches_outputs = 16'd500;
 
-        # CLK_PERIOD * 2;
+        # (2*CLK_PERIOD);
 
 
         $stop;
@@ -72,7 +72,3 @@ module switch_pause_tb;
     end
 
 endmodule
-
-
-
-

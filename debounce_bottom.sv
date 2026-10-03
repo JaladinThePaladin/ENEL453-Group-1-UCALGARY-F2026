@@ -2,7 +2,7 @@
 // Verilog version https://forum.digikey.com/t/debounce-logic-circuit-verilog/13196
 // This version below is a direct translation of the diagram in the above reference.
  
-module debounce
+module debounce_bottomPB
  #(parameter clk_freq    = 200_000_000, // system clock frequency in Hz (e.g. 50 MHz for DE10-Lite) [changed from 50MHz to 100MHz giving a clk period of 1us/10ns] [original number 100,000,000] 
              stable_time = 125)         // time button must remain stable in ms (e.g. 20 ms for the bounce time) [changed to 50ms bounce time] [original number 50]
   (input  logic clk,     // input clock                   

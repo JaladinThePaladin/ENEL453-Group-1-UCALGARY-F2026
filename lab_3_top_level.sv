@@ -1,4 +1,3 @@
-
 module lab_3_top_level (
     input  logic        clk,
     input  logic        reset,
@@ -16,37 +15,52 @@ module lab_3_top_level (
     logic [15:0] bcd_intermediary;
     logic [15:0] seg_inputs;
     logic [15:0] storage_BCD_vals;
+    logic top_PB_result;
+    logic bottom_PB_result;
     
     // Instantiate components
 
     switch_logic SWITCHES (
+        .clk(clk),
         .switches_inputs( switches_inputs),
         .switches_outputs(switches_outputs)
     );
     
+    debounce_bottomPB DEBOUNCE_PB_BOTTOM (
+        .clk(clk), .reset(reset),     // input clock and synchronous active high reset 
+        .button(bottom_PB),          // input signal to be debounced  
+        .result(bottom_PB_result)          // debounced signal      
+    );
+    
+    debounce_topPB DEBOUNCE_PB_TOP (  
+        .clk(clk), .reset(reset),     // input clock and synchronous active high reset 
+        .button(top_PB),          // input signal to be debounced  
+        .result(top_PB_result)          // debounced signal    
+    );
+    
     switch_pause SWITCH_PAUSE (
         .clk(clk), .reset(reset),               // clk and reset
-        .storage_ON     ( bottom_PB),                // Enables new hex value to be stored
+        .storage_ON     ( bottom_PB_result),                // Enables new hex value to be stored
         .switches_inputs( switches_outputs),        // Takes input directly from switches 
         .storage_vals(    storage_hex_vals)        // Output is frozen switches values or just passed through the module
     );
     
     bin_to_bcd BIN_TO_BCD ( 
         .clk(clk), .reset(reset),     // clk and reset 
-        .storage_ON( bottom_PB),               // When bottom_PB is pushed storage vals are displayed
+        .storage_ON( bottom_PB_result),               // When bottom_PB is pushed storage vals are displayed
         .stored_BCD(     storage_BCD_vals),   // Stored BCD values from the module
         .bin_in(         switches_outputs),  // Set switches_inputs to be configured as BCD_inputs 
         .bcd_out(        bcd_intermediary)  // Set switches_outputs to be configured as BCD_outputs
     );
 
     bcd_7_hex_mux BCD_HEX_MUX (
-        .storage_enable  (bottom_PB),                      // When bottom_PB is pushed storage vals are displayed
+        .storage_enable  (bottom_PB_result),                      // When bottom_PB is pushed storage vals are displayed
         .BCD_vals        (bcd_intermediary),              // BCD decimal outputs
         .stored_BCD      (storage_BCD_vals),              // BCD stored values gotten from bin_to_bcd module
         .stored_hex      (storage_hex_vals),  // Hex stored values gotten from storage module
         .hex_vals        (switches_outputs),             // Represents hexidecimal values
         .bcd_real_out       (seg_inputs),                 //  What values 7 segment display recieves
-        .hex_or_BCD_decider (top_PB)                     //   Takes top button signal for multiplexor module
+        .hex_or_BCD_decider (top_PB_result)                     //   Takes top button signal for multiplexor module
     );
 
     seven_segment_display_subsystem SEVEN_SEGMENT_DISPLAY(

@@ -1,91 +1,65 @@
-//******************************************************************************
-// Module: seven_segment_decoder
-//
-// Description:
-// This module decodes a 4-bit input into the appropriate signals to drive a
-// 7-segment LED display. It supports displaying hexadecimal digits (0-F),
-// with additional support for a decimal point.
-//
-// Inputs:
-//   - data[3:0]: 4-bit input representing the digit to be displayed (0-F)
-//   - dp_in:     Input for the decimal point (active-low)
-//
-// Outputs:
-//   - CA, CB, CC, CD, CE, CF, CG: Individual segment controls (active-low)
-//   - DP: Decimal point control (active-low)
-//
-// Behavior:
-//   - The module uses a combinational logic block to decode the input into
-//     a 7-bit pattern representing the segments to be lit.
-//   - The decoded pattern is then inverted and assigned to the respective
-//     segment outputs (CA-CG), as the 7-segment display is active-low.
-//   - The decimal point (DP) is passed through directly from dp_in.
-//
-// Note:
-//   - The module supports all hexadecimal digits (0-F), but digits A-F are
-//     noted as "Not used in stopwatch" in the original comments.
-//   - The segment mapping is as follows:
-//       A
-//     F   B
-//       G
-//     E   C
-//       D  DP
-//
-//*****************************************************************************/
 
+// - CA, CB, CC, CD, CE, CF, CG, DP: Individual segment controls (active-low)
+// - AN1, AN2, AN3, AN4: Anode controls for the 4 digits (active-low)
+//
+// Internal Signals:
+// - digit_select: One-hot encoded output for digit selection
+// - digit_to_display: 4-bit BCD value to display on the current digit
+// - in_DP: Control signal for the decimal point
+//
+//*******************************************************************************
 
-module seven_segment_decoder (
-    output logic       CA,
-    output logic       CB,
-    output logic       CC,
-    output logic       CD,
-    output logic       CE,
-    output logic       CF,
-    output logic       CG,
-    output logic       DP,
-    input  logic       dp_in,
-    input  logic [3:0] data
+module seven_segment_display_subsystem (
+    input  logic        clk,
+    input  logic        reset,
+    input  logic [3:0]  sec_dig1, // seconds digit (units)
+    input  logic [3:0]  sec_dig2, // tens of seconds
+    input  logic [3:0]  min_dig1, // minutes digit (units)
+    input  logic [3:0]  min_dig2, // tens of minutes
+    output logic        CA, CB, CC, CD, CE, CF, CG, DP, // segment outputs (active-low)
+    output logic        AN1, AN2, AN3, AN4 // anode outputs for digit selection (active-low)
 );
 
-    logic [6:0] decoded_bits;
+    // Internal signals
+    logic [3:0] digit_to_display;
+    logic [3:0] digit_select;
+    logic [3:0] an_outputs;
+    logic       in_DP, out_DP;
 
-    always_comb begin
-        // Decode the input data into 7-segment display pattern
-                                    // ABCDEFG         7-segment LED pattern for reference (1 is on)
-        case (data)                 // 6543210 
-            4'b0000: decoded_bits = 7'b1111110; // 0       A-6
-            4'b0001: decoded_bits = 7'b0110000; // 1   F-1     B-5
-            4'b0010: decoded_bits = 7'b1101101; // 2       G-0
-            4'b0011: decoded_bits = 7'b1111001; // 3   E-2     C-4
-            4'b0100: decoded_bits = 7'b0110011; // 4       D-3      DP
-            4'b0101: decoded_bits = 7'b1011011; // 5
-            4'b0110: decoded_bits = 7'b1011111; // 6
-            4'b0111: decoded_bits = 7'b1110000; // 7
-            4'b1000: decoded_bits = 7'b1111111; // 8
-            4'b1001: decoded_bits = 7'b1111011; // 9
-// Students: fill in the remaining rows for this case statement,
-// to account for the hexademcial digits A, B, C, D, E, and F
-            4'b1010: decoded_bits = 7'b1110111; // A
-            4'b1011: decoded_bits = 7'b0011111; // B
-            4'b1100: decoded_bits = 7'b1001110; // C
-            4'b1101: decoded_bits = 7'b0111101; // D
-            4'b1110: decoded_bits = 7'b1001111; // E
-            4'b1111: decoded_bits = 7'b1000111; // F
+    // Instantiate digit multiplexor
+    digit_multiplexor DIGIT_MUX (
+        .sec_dig1(  sec_dig1),  // input for seconds digit (units)
+        .sec_dig2(  sec_dig2),  // input for tens of seconds digit
+        .min_dig1(  min_dig1),  // input for minutes digit (units)
+        .min_dig2(  min_dig2),  // input for tens of minutes digit
+        .selector(  digit_select), // one-hot selector for the digit
+        .time_digit(digit_to_display)  // 4-bit digit output to display
+    );
 
-            default: decoded_bits = 7'b0000000; // All LEDs off
-        endcase                     // ABCDEFG
-    end                             //6543210
+    // Instantiate digit selector
+    seven_segment_digit_selector DIGIT_SELECTOR (
+        .clk(         clk),         // Clock input
+        .reset(       reset),       // Reset input (active-high)
+        .digit_select(digit_select), // Output: one-hot encoded digit select
+        .an_outputs(  an_outputs)   // Output: active-low anode controls
+    );
 
+    // Instantiate seven segment decoder
+    seven_segment_decoder SEG_DECODER (
+        .data( digit_to_display), // Input: 4-bit BCD digit to display
+        .dp_in( in_DP),           // Input: Decimal point control
+        .CA( CA), .CB( CB), .CC( CC), .CD( CD), .CE( CE), .CF( CF), .CG( CG), // Segment outputs (active-low)
+        .DP( out_DP)              // Decimal point output (active-low)
+    );
 
-    // Assign the decoded bits to the 7-segment display outputs (active-low on Basys3, i.e. 0 is ON)
-    // Invert LED signals that were active-high for convenience
-    assign DP = ~dp_in; // Passes through the decimal point signal (from top_level)
-    assign CA = ~decoded_bits[6];
-    assign CB = ~decoded_bits[5];
-    assign CC = ~decoded_bits[4];
-    assign CD = ~decoded_bits[3];
-    assign CE = ~decoded_bits[2];
-    assign CF = ~decoded_bits[1];
-    assign CG = ~decoded_bits[0];
+    // Connect anodes
+    assign AN1 = an_outputs[0];
+    assign AN2 = an_outputs[1];
+    assign AN3 = an_outputs[2];
+    assign AN4 = an_outputs[3];
+    
+    // Control the decimal point: You can modify `in_DP` assignment as per the design
+    assign in_DP = 0;  // No decimal point by default, modify as needed
+    assign DP = out_DP;  // Pass the decimal point signal from the decoder
 
 endmodule

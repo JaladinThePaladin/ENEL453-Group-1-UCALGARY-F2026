@@ -4,7 +4,7 @@ module switch_logic (
     output logic [15:0] switches_outputs 
 );
     
-    SWITCH_SYNC SWITCH_SYNC(
+    switch_sync SWITCH_SYNC(
         .clk(clk),
         .switches_inputs( switches_inputs),
         .switches_outputs(switches_outputs)

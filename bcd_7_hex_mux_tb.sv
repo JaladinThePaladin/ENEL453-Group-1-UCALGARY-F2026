@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module two_input_multiplexer_tb();
+module bcd_7_hex_mux_tb();
     
     parameter DELAY = 10;
     
@@ -31,7 +31,7 @@ module two_input_multiplexer_tb();
     logic [15:0] mux_output;
     
     // Instantiate the mux
-    two_input_multiplexer MUX (
+    bcd_7_hex_mux MUX (
         .input_0     (input_0      ),
         .input_1     (input_1      ),
         .select      (select       ),
@@ -64,4 +64,5 @@ module two_input_multiplexer_tb();
         $stop;
         
     end
+    
 endmodule

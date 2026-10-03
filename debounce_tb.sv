@@ -2,7 +2,7 @@
 
 `timescale 1ns/1ps
 
-module debounce_tb; 
+module debounce_bottomPB_tb; 
 
 parameter CLK_PERIOD    = 10, // in ns, i.e. 10 ns clock    
           BOUNCING_4_ms = 4_000_000, // in ns, i.e. 4 ms    
@@ -13,7 +13,7 @@ parameter CLK_PERIOD    = 10, // in ns, i.e. 10 ns clock
   logic clk=0,reset,button,result;
   
   // instantiate UUT
-  debounce // module to instantiate, followed by parameters to override defaults (can't name them for ModelSim)
+  debounce_bottomPB // module to instantiate, followed by parameters to override defaults (can't name them for ModelSim)
    #(.clk_freq(clk_freq),       // system clock frequency in Hz (e.g. 50 MHz for DE10-Lite)     
      .stable_time(stable_time)) // time button must remain stable in ms (e.g. 20 ms for the bounce time)
    UUT(.*); // instance label
