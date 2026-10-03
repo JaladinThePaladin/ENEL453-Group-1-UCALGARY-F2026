@@ -12,36 +12,41 @@ module lab_3_top_level (
 
     // Internal signal declarations
     logic [15:0] switches_outputs;
-    logic [15:0] switches_pause_intermediary; 
+    logic [15:0] storage_hex_vals; 
     logic [15:0] bcd_intermediary;
     logic [15:0] seg_inputs;
+    logic [15:0] storage_BCD_vals;
     
     // Instantiate components
 
     switch_logic SWITCHES (
-        .clk(clk),
         .switches_inputs( switches_inputs),
         .switches_outputs(switches_outputs)
     );
     
     switch_pause SWITCH_PAUSE (
-        .clk(clk), .reset(reset),                   // clk and reset
-        .paused_vals( switches_outputs),             // Takes input directly from switches
-        .bottom_PB(   bottom_PB),                   // PB that decides whether values are paused (enable signal?)
-        .sent_vals(   switches_pause_intermediary)  // Output is frozen switches values or just passed through the module
+        .clk(clk), .reset(reset),               // clk and reset
+        .storage_ON     ( bottom_PB),                // Enables new hex value to be stored
+        .switches_inputs( switches_outputs),        // Takes input directly from switches 
+        .storage_vals(    storage_hex_vals)        // Output is frozen switches values or just passed through the module
     );
     
     bin_to_bcd BIN_TO_BCD ( 
         .clk(clk), .reset(reset),     // clk and reset 
-        .bin_in(      switches_pause_intermediary),  // Set switches_inputs to be configured as BCD_inputs 
-        .bcd_out(     bcd_intermediary)  // Set switches_outputs to be configured as BCD_outputs
+        .storage_ON( bottom_PB),               // When bottom_PB is pushed storage vals are displayed
+        .stored_BCD(     storage_BCD_vals),   // Stored BCD values from the module
+        .bin_in(         switches_outputs),  // Set switches_inputs to be configured as BCD_inputs 
+        .bcd_out(        bcd_intermediary)  // Set switches_outputs to be configured as BCD_outputs
     );
 
     bcd_7_hex_mux BCD_HEX_MUX (
-        .decimal_vals    (bcd_intermediary),    // BCD decimal outputs
-        .hex_vals        (switches_pause_intermediary),    // Represents hexidecimal values
-        .bcd_real_out    (seg_inputs),        //  What values 7 segment display recieves
-        .decider         (top_PB)            //   Takes top button signal for multiplexor module
+        .storage_enable  (bottom_PB),                      // When bottom_PB is pushed storage vals are displayed
+        .BCD_vals        (bcd_intermediary),              // BCD decimal outputs
+        .stored_BCD      (storage_BCD_vals),              // BCD stored values gotten from bin_to_bcd module
+        .stored_hex      (storage_hex_vals),  // Hex stored values gotten from storage module
+        .hex_vals        (switches_outputs),             // Represents hexidecimal values
+        .bcd_real_out       (seg_inputs),                 //  What values 7 segment display recieves
+        .hex_or_BCD_decider (top_PB)                     //   Takes top button signal for multiplexor module
     );
 
     seven_segment_display_subsystem SEVEN_SEGMENT_DISPLAY(

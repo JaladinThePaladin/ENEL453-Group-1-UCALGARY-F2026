@@ -23,14 +23,18 @@
 module switch_pause(
     input logic clk, 
     input logic reset,
-    input logic bottom_PB,              // Enable signal for flip flopz
-    input logic [15:0]  paused_vals,    // Input directly from switches
-    output logic [15:0] sent_vals       // What pause module sends to the 7 segment sequence
+    input logic storage_ON,
+    input logic [15:0]  switches_inputs,    // Input directly from switches
+    output logic [15:0] storage_vals       // What pause module sends to the 7 segment sequence
     );
     
-    always_ff @(posedge clk)
-        if      (reset) sent_vals <= 16'b0;
-        else if (bottom_PB) sent_vals <= paused_vals;
-
+    // logic [15:0] storage;    // Stores paused intermediary values
     
+    always_ff @(posedge clk)
+    
+        if (reset)
+            storage_vals <= 16'b0;
+        else if (storage_ON)
+            storage_vals <= switches_inputs;        
+            
 endmodule

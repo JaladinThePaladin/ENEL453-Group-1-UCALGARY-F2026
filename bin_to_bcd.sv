@@ -7,6 +7,8 @@ module bin_to_bcd (
     input  logic        clk,
     input  logic        reset,
     input  logic [15:0] bin_in,
+    input logic         storage_ON,
+    output logic [15:0] stored_BCD,
     output logic [15:0] bcd_out
 );
 
@@ -15,6 +17,7 @@ module bin_to_bcd (
     logic [15:0] next_bcd_out;
 
     always_ff @(posedge clk) begin
+            
         if (reset) begin
             scratch <= '0;
             count   <= '0;
@@ -24,10 +27,13 @@ module bin_to_bcd (
             scratch <= next_scratch;
             count   <= next_count;
             bcd_out <= next_bcd_out;
+                if (storage_ON)
+                    stored_BCD <= next_bcd_out;     // If Bottom_PB is pressed storage BCD values are assigned the most recent BCD output not updating until the next time bottom_PB is pressed again
         end
     end
 
-    always_comb begin
+    always_comb begin 
+            
         next_scratch = scratch;
         next_count   = count;
         next_bcd_out = bcd_out;
