@@ -66,11 +66,11 @@ set_property -dict { PACKAGE_PIN W4   IOSTANDARD LVCMOS33 } [get_ports {AN4}]
                                                                                                  
                                                                                                  
 ##Buttons                                                                                        
-set_property -dict { PACKAGE_PIN U18   IOSTANDARD LVCMOS33 } [get_ports reset]; #reset + inline clk
-set_property -dict { PACKAGE_PIN T18   IOSTANDARD LVCMOS33 } [get_ports top_PB]; #top_PB config for multiplexor selection module                  
-#set_property -dict { PACKAGE_PIN W19   IOSTANDARD LVCMOS33 } [get_ports btnL]                   
+set_property -dict { PACKAGE_PIN U18   IOSTANDARD LVCMOS33 } [get_ports reset];     #reset + inline clk
+set_property -dict { PACKAGE_PIN T18   IOSTANDARD LVCMOS33 } [get_ports top_PB];    #top_PB config for multiplexor selection module                  
+set_property -dict { PACKAGE_PIN W19   IOSTANDARD LVCMOS33 } [get_ports left_PB];   #left_pb config for storage values being shown                
 #set_property -dict { PACKAGE_PIN T17   IOSTANDARD LVCMOS33 } [get_ports btnR]                   
-set_property -dict { PACKAGE_PIN U17   IOSTANDARD LVCMOS33 } [get_ports bottom_PB]; #bottom_PB config for pause module                   
+set_property -dict { PACKAGE_PIN U17   IOSTANDARD LVCMOS33 } [get_ports bottom_PB]; #bottom_PB config for triggering storage condition module                   
                                                                                                  
                                                                                                  
 ##Pmod Header JA                                                                                 
