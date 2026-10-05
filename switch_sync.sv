@@ -26,7 +26,11 @@ module switch_sync(
     output logic [15:0] switches_outputs 
     );
     
+    logic n1;
+    
     always_ff @(posedge clk)
-        switches_outputs <= switches_inputs;
+        n1 <= switches_inputs;
+    always_ff @(posedge clk)
+        switches_outputs <= n1;
     
 endmodule
