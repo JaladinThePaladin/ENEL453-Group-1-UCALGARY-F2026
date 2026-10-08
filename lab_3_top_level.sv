@@ -2,7 +2,7 @@ module lab_3_top_level (
     input  logic        clk,
     input  logic        reset,
     input logic         top_PB,     //PB used for bcd_7_hex_mux module
-    input logic         left_PB,    // PB used for showing storage values
+    input logic         right_PB,    // PB used for showing storage values
     input logic         bottom_PB,  // PB used for triggering storage conditions/calculations module
     input  logic [15:0] switches_inputs, // slide switches (0 towards Basys3 board edge, 1 towards board center)
     output logic        CA, CB, CC, CD, CE, CF, CG, DP, // segment outputs (active-low) 
@@ -18,7 +18,7 @@ module lab_3_top_level (
     logic [15:0] storage_BCD_vals;
     logic top_PB_result;
     logic bottom_PB_result;
-    logic left_PB_result;
+    logic right_PB_result;
     
     // Instantiate components
 
@@ -40,10 +40,10 @@ module lab_3_top_level (
         .result(top_PB_result)      //  debounced signal                             
     );
    
-   debounce_leftPB DEBOUNCE_PB_LEFT (  
+   debounce_rightPB DEBOUNCE_PB_RIGHT (  
         .clk(clk), .reset(reset),     // input clock and synchronous active high reset
-        .button(left_PB),            //  input signal to be debounced                 
-        .result(left_PB_result)     //   debounced signal                             
+        .button(right_PB),            //  input signal to be debounced                 
+        .result(right_PB_result)     //   debounced signal                             
     );
     
     switch_pause SWITCH_PAUSE (
@@ -62,7 +62,7 @@ module lab_3_top_level (
     );
 
     bcd_7_hex_mux BCD_HEX_MUX (
-        .storage_enable  (left_PB_result),                        // When left_PB is pushed storage vals are displayed
+        .storage_enable  (right_PB_result),                 // When right_PB is pushed storage vals are displayed
         .BCD_vals        (bcd_intermediary),              //  BCD decimal outputs
         .stored_BCD      (storage_BCD_vals),             //   BCD stored values gotten from bin_to_bcd module
         .stored_hex      (storage_hex_vals),            //    Hex stored values gotten from storage module
